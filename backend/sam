@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+SCRIPT="$@" 
+if [ "${1:-}" = "local" ] && [ "${2:-}" = "invoke" ] && [ "${3:-}" != "-h" ] ; then
+  SCRIPT="$SCRIPT --container-host host.docker.internal | jq --color-output"
+fi;
+
+docker run --init --rm -it -P \
+  --workdir $(pwd) \
+  -v $(pwd):$(pwd) \
+  -v $HOME/.aws:/root/.aws \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -e AWS_PROFILE=ab3 \
+  -e SAM_CLI_CONTAINER_CONNECTION_TIMEOUT=60 \
+  --entrypoint bash \
+  public.ecr.aws/sam/build-nodejs16.x:latest \
+  -c "sam $SCRIPT"
+  

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+PORT=3055
+if [ "${2:-}" != "start" ]; then
+  PORT="3$((1 + $RANDOM % 1000))"
+fi
+docker run --rm --init -it \
+  --workdir $(pwd) \
+  -v $(pwd):$(pwd) \
+  -e PORT=$PORT \
+  -p $PORT:$PORT \
+  --entrypoint npm \
+  node:18-slim "$@"

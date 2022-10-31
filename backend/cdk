@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+docker run --init --rm -it -P \
+  --workdir $(pwd) \
+  -v $(pwd):$(pwd) \
+  -v $HOME/.aws:/root/.aws \
+  -e AWS_PROFILE=ab3preview \
+  --entrypoint node_modules/.bin/cdk \
+  public.ecr.aws/sam/build-nodejs16.x:latest "$@"
