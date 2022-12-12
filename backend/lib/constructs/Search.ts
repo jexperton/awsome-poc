@@ -98,7 +98,7 @@ export class SearchConstruct extends Construct {
         main: new PolicyDocument({
           statements: [
             new PolicyStatement({
-              actions: ["aoss:*"],
+              actions: ["es:*"],
               resources: [`${this.props.openSearch.domainArn}/*`],
             }),
           ],

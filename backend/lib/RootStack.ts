@@ -1,6 +1,6 @@
 import { CfnParameter, Stack, StackProps } from "aws-cdk-lib";
 import { AttributeType, BillingMode, Table } from "aws-cdk-lib/aws-dynamodb";
-import { IDomain } from "aws-cdk-lib/aws-opensearchservice";
+import { Domain, EngineVersion } from "aws-cdk-lib/aws-opensearchservice";
 import { EventBus } from "aws-cdk-lib/aws-events";
 import { Stream } from "aws-cdk-lib/aws-kinesis";
 import { Construct } from "constructs";
@@ -12,6 +12,7 @@ import { TranscribeConstruct } from "./constructs/Transcribe";
 import { SearchConstruct } from "./constructs/Search";
 import { ListConstruct } from "./constructs/List";
 import { GetConstruct } from "./constructs/Get";
+import { VocabularyListConstruct } from "./constructs/api/VocabularyList";
 import { Repository } from "aws-cdk-lib/aws-codecommit";
 
 interface RootProps extends StackProps {
@@ -84,26 +85,16 @@ export class RootStack extends Stack {
       kinesisStream: stream,
     });
 
-    const domainEndpoint = new CfnParameter(this, "opensearchEndpoint", {
-      type: "String",
-      description: "The OpenSearch domain endpoint.",
-    });
-
-    const domainArn = new CfnParameter(this, "opensearchArn", {
-      type: "String",
-      description: "The OpenSearch domain ARN.",
-    });
-
     const index = new CfnParameter(this, "opensearchIndex", {
       type: "String",
       description: "The OpenSearch index where transcriptions are indexed.",
     });
 
     // the OpenSearch service where transcriptions are indexed
-    const openSearch = {
-      domainEndpoint: domainEndpoint.valueAsString,
-      domainArn: domainArn.valueAsString,
-    } as IDomain;
+    const openSearch = new Domain(this, "Domain", {
+      version: EngineVersion.OPENSEARCH_1_0,
+      capacity: { dataNodeInstanceType: "t3.medium.search" },
+    });
 
     // the API Gateway to index and search transcriptions
     const { restApi, authorizer } = new RestApiConstruct(this, "Api", {
@@ -148,5 +139,11 @@ export class RootStack extends Stack {
       "POST",
       "get"
     );
+
+    // the API to get vocabulary
+    new VocabularyListConstruct(
+      this, "VocabularyList",
+      { bucket: destinationBucket, name: "common" }
+    ).integrateTo(restApi, "GET", "vocabulary")
   }
 }

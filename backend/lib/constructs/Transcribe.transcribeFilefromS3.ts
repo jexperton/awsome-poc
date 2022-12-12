@@ -19,23 +19,26 @@ export const handler = async (input: Input) => {
   const item = unmarshall(result.Item!);
 
   if (item.transcriptionJobName) {
-    input.logs = await putLogEvent(
-      input.logs,
-      `Transcription ${item.transcriptionJobName} has already been started`
-    );
-    return { ...input, jobName: item.transcriptionJobName };
+    if (item.transcriptionStatus === "IN_PROGRESS") {
+      input.logs = await putLogEvent(
+        input.logs,
+        `Transcription ${item.transcriptionJobName} has already been started`
+      );
+      return { ...input, jobName: item.transcriptionJobName };
+    }
   }
 
-  //const VocabularyName = "common";
+  const VocabularyName = "common";
   const LanguageCode = "en-US";
-  const TranscriptionJobName = `${item.fileName}`
+  const TranscriptionJobName = `${`${item.fileName}`
     .split("?")[0]
-    .replace(".", "-");
+    .replace(".", "-")}-${parseInt(item.iteration) + 1}`;
 
   const job = await new TranscribeService()
     .startTranscriptionJob({
       TranscriptionJobName,
       LanguageCode,
+      Settings: { VocabularyName },
       Media: { MediaFileUri: item.audioFileUri as string },
       OutputBucketName: process.env[Env.OUTPUT_BUCKET_NAME]!,
     })
@@ -44,10 +47,11 @@ export const handler = async (input: Input) => {
   await db.updateItem({
     TableName: input.tableName,
     Key: { url: { S: input.url } },
-    UpdateExpression: "SET transcriptionStatus = :s, transcriptionJobName = :n",
+    UpdateExpression: "SET transcriptionStatus = :s, transcriptionJobName = :n, iteration = :i",
     ExpressionAttributeValues: marshall({
       ":s": job.TranscriptionJob?.TranscriptionJobStatus,
       ":n": job.TranscriptionJob?.TranscriptionJobName,
+      ":i": parseInt(item.iteration) + 1
     }),
   });
 

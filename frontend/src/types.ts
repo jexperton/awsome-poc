@@ -47,3 +47,10 @@ export interface Subscribable<T> {
   emit(value: T): void;
   subscribe(callback: (value: T) => void): void;
 }
+
+export interface Phrase {
+  phrase: string;
+  soundsLike: string;
+  ipa: string;
+  displayAs: string;
+}

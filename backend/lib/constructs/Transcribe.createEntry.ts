@@ -39,6 +39,7 @@ export const handler = async (input: Input) => {
         url: input.url,
         date: input.date,
         transcriptionStatus: "NEW",
+        iteration: 0,
       }),
     });
   }

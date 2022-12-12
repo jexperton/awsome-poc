@@ -27,9 +27,7 @@ https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_lambda_nodejs-readme
 ./cdk deploy  \
   --parameters loginUrl=http://localhost:3055/signin,https://main.d1ulx6718b296l.amplifyapp.com/signin \
   --parameters logoutUrl=http://localhost:3055/signout,https://main.d1ulx6718b296l.amplifyapp.com/signout \
-  --parameters repository=arn:aws:codecommit:ca-central-1:418930842852:ab3-backend \ 
-  --parameters branch=opensearch-serverless \
-  --parameters opensearchEndpoint=kv1yd5ujxvgr9p5cj2ij.us-east-1.aoss.amazonaws.com \        
-  --parameters opensearchArn=arn:aws:aoss:us-east-1:418930842852:collection/kv1yd5ujxvgr9p5cj2ij \
+  --parameters repository=arn:aws:codecommit:ca-central-1:418930842852:ab3-backend \
+  --parameters branch=main \
   --parameters opensearchIndex=transcriptions
 ```

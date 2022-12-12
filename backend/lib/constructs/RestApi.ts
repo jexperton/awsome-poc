@@ -22,12 +22,12 @@ export class RestApiConstruct extends Construct {
     this.scope = scope;
 
     this.restApi = new RestApi(this, "Api", {
-      /**
-       * Only GET requests are cached by default
-       * https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-caching.html#flush-api-caching:~:text=only%20GET%20methods%20have%20caching%20enabled%20by%20default
-       minimumCompressionSize: 4096,
-       */
+      minimumCompressionSize: 4096,
       deployOptions: {
+        /**
+         * Only GET requests are cached by default
+         * https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-caching.html#flush-api-caching:~:text=only%20GET%20methods%20have%20caching%20enabled%20by%20default
+         */
         cachingEnabled: true,
         cacheClusterEnabled: true,
         cacheTtl: Duration.minutes(1),

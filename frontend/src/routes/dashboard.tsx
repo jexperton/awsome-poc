@@ -4,6 +4,7 @@ import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import Layout from "../components/Layout";
 import Add from "../components/dashboard/Add";
 import List from "../components/dashboard/List";
+import Vocabulary from "../components/dashboard/Vocabulary";
 
 const Dashboard: FC<{}> = () => {
   return (
@@ -12,6 +13,7 @@ const Dashboard: FC<{}> = () => {
         <TabList>
           <Tab>List</Tab>
           <Tab>Add</Tab>
+          <Tab>Vocabulary</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -25,6 +27,9 @@ const Dashboard: FC<{}> = () => {
                 new Date()
               )}
             />
+          </TabPanel>
+          <TabPanel>
+            <Vocabulary />
           </TabPanel>
         </TabPanels>
       </Tabs>

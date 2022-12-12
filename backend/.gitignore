@@ -10,3 +10,5 @@ cdk.context.json
 cdk.out/
 
 events/
+
+vocabulary.txt

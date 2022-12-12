@@ -3,27 +3,16 @@ import { Client, Connection } from "@opensearch-project/opensearch";
 import { defaultProvider } from "@aws-sdk/credential-provider-node";
 import aws4 from "aws4";
 
-/**
- * See https://docs.aws.amazon.com/opensearch-service/latest/developerguide/serverless-clients.html#serverless-javascript 
- */
 const createAwsConnector = (credentials: any, region: string) => {
   class AmazonConnection extends Connection {
     buildRequestObject(params: any): ClientRequestArgs {
-      var request = super.buildRequestObject(params) as any;
-      request.service = "aoss";
+      const request = super.buildRequestObject(params) as any;
+      request.service = "es";
       request.region = region;
-      var contentLength = '0';
+      request.headers = request.headers || {};
+      request.headers["host"] = request.hostname;
 
-      if (request.headers['content-length']) {
-        contentLength = request.headers['content-length'];
-        request.headers['content-length'] = '0';
-      }
-
-      request.headers['x-amz-content-sha256'] = 'UNSIGNED-PAYLOAD';
-      request = aws4.sign(request, credentials);
-      request.headers['content-length'] = contentLength;
-
-      return request;
+      return aws4.sign(request, credentials);
     }
   }
   return { Connection: AmazonConnection };
