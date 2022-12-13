@@ -6,15 +6,15 @@ import type { Phrase } from "../types";
 
 const getFetcher =
   <T,>(headers: HeadersInit, data?: T) =>
-  (url: string) =>
-    fetch(url, {
-      method: data ? "POST" : "GET",
-      headers: {
-        ...(data ? { "Content-Type": "application/json" } : {}),
-        ...headers,
-      },
-      body: data ? JSON.stringify(data) : undefined,
-    }).then((response) => response.json());
+    (url: string) =>
+      fetch(url, {
+        method: data ? "POST" : "GET",
+        headers: {
+          ...(data ? { "Content-Type": "application/json" } : {}),
+          ...headers,
+        },
+        body: data ? JSON.stringify(data) : undefined,
+      }).then((response) => response.json());
 
 const useVocabulary = () => {
   const { token } = useToken();
@@ -27,13 +27,12 @@ const useVocabulary = () => {
         token ? { headers: { Authorization: token } } : undefined
       ).then((r) => r.json())
   );
-
   return {
     vocabulary: data,
-    updateVocabulary: (data: Phrase[]) =>
+    updateVocabulary: async (data: Phrase[]) =>
       mutate(
         data,
-        fetch(`${process.env.REACT_APP_API!}/vocabulary`, {
+        await fetch(`${process.env.REACT_APP_API!}/vocabulary`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -41,7 +40,10 @@ const useVocabulary = () => {
           },
           body: JSON.stringify(data),
         }).then((r) => r.json()),
-        { optimisticData: data }
+        {
+          optimisticData: data,
+          revalidate: true,
+        }
       ),
   };
 };

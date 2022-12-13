@@ -13,6 +13,7 @@ import { SearchConstruct } from "./constructs/Search";
 import { ListConstruct } from "./constructs/List";
 import { GetConstruct } from "./constructs/Get";
 import { VocabularyListConstruct } from "./constructs/api/VocabularyList";
+import { VocabularyUpdateConstruct } from "./constructs/api/VocabularyUpdate";
 import { Repository } from "aws-cdk-lib/aws-codecommit";
 
 interface RootProps extends StackProps {
@@ -140,10 +141,18 @@ export class RootStack extends Stack {
       "get"
     );
 
+    const vocabularyResource = restApi.root.addResource("vocabulary");
+
     // the API to get vocabulary
-    new VocabularyListConstruct(
-      this, "VocabularyList",
-      { bucket: destinationBucket, name: "common" }
-    ).integrateTo(restApi, "GET", "vocabulary")
+    new VocabularyListConstruct(this, "VocabularyList", {
+      bucket: destinationBucket,
+      name: "common",
+    }).integrateTo(vocabularyResource);
+
+    // the API to replace vocabulary
+    new VocabularyUpdateConstruct(this, "VocabularyUpdate", {
+      bucket: destinationBucket,
+      name: "common",
+    }).integrateTo(vocabularyResource);
   }
 }

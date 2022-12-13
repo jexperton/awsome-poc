@@ -47,11 +47,12 @@ export const handler = async (input: Input) => {
   await db.updateItem({
     TableName: input.tableName,
     Key: { url: { S: input.url } },
-    UpdateExpression: "SET transcriptionStatus = :s, transcriptionJobName = :n, iteration = :i",
+    UpdateExpression:
+      "SET transcriptionStatus = :s, transcriptionJobName = :n, iteration = :i",
     ExpressionAttributeValues: marshall({
       ":s": job.TranscriptionJob?.TranscriptionJobStatus,
       ":n": job.TranscriptionJob?.TranscriptionJobName,
-      ":i": parseInt(item.iteration) + 1
+      ":i": parseInt(item.iteration) + 1,
     }),
   });
 

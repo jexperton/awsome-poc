@@ -11,7 +11,13 @@ export const handler = async () => {
       })
       .promise();
 
-    return request.$response.data;
+    return `${request.$response.data?.Body}`
+      .split("\n")
+      .slice(1)
+      .map((line: string) => {
+        const [phrase, soundsLike, ipa, displayAs] = line.split("\t");
+        return { phrase, soundsLike, ipa, displayAs };
+      });
   } catch (err) {
     return JSON.stringify(err);
   }

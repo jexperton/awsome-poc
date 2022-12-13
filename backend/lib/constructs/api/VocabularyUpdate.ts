@@ -13,19 +13,19 @@ import {
   methodResponseParameters,
 } from "../utils/corsOptions";
 
-interface VocabularyListProps {
+interface VocabularyUpdateProps {
   name: string;
   bucket: IBucket;
 }
 
-export class VocabularyListConstruct extends Construct {
+export class VocabularyUpdateConstruct extends Construct {
   nodeJsConfig: { runtime: Runtime; memorySize: number; timeout: Duration };
-  props: VocabularyListProps;
+  props: VocabularyUpdateProps;
   scope: Construct;
   handler: NodejsFunction;
   id: string;
 
-  constructor(scope: Construct, id: string, props: VocabularyListProps) {
+  constructor(scope: Construct, id: string, props: VocabularyUpdateProps) {
     super(scope, id);
 
     this.nodeJsConfig = {
@@ -36,7 +36,7 @@ export class VocabularyListConstruct extends Construct {
     this.props = props;
     this.scope = scope;
     this.id = id;
-    this.handler = this.getHandler("listVocabulary");
+    this.handler = this.getHandler("updateVocabulary");
   }
 
   integrateTo(resource: IResource) {
@@ -47,17 +47,19 @@ export class VocabularyListConstruct extends Construct {
     this.handler.grantInvoke(credentialsRole);
 
     resource.addMethod(
-      "GET",
+      "POST",
       new LambdaIntegration(this.handler, {
         proxy: false,
         credentialsRole,
+        requestParameters: {
+          "integration.request.header.Content-Type": "'application/json'",
+        },
         integrationResponses: [
           {
             statusCode: "200",
-            responseTemplates: { "application/json": "" },
             responseParameters: integrationResponseParameters,
           },
-          { statusCode: "500", responseTemplates: { "application/json": "" } },
+          { statusCode: "500" },
         ],
       }),
       {
@@ -88,7 +90,7 @@ export class VocabularyListConstruct extends Construct {
       },
     });
 
-    this.props.bucket.grantRead(lambdaFunction);
+    this.props.bucket.grantWrite(lambdaFunction);
 
     return lambdaFunction;
   }

@@ -1,4 +1,3 @@
-import { Duration } from "aws-cdk-lib";
 import { CfnAuthorizer, RestApi } from "aws-cdk-lib/aws-apigateway";
 import { CfnUserPoolClient, UserPool } from "aws-cdk-lib/aws-cognito";
 import { Construct } from "constructs";
@@ -27,10 +26,10 @@ export class RestApiConstruct extends Construct {
         /**
          * Only GET requests are cached by default
          * https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-caching.html#flush-api-caching:~:text=only%20GET%20methods%20have%20caching%20enabled%20by%20default
-         */
         cachingEnabled: true,
         cacheClusterEnabled: true,
-        cacheTtl: Duration.minutes(1),
+        cacheTtl: Duration.minutes(3),
+        */
       },
       defaultCorsPreflightOptions: {
         allowHeaders: [
@@ -54,8 +53,8 @@ export class RestApiConstruct extends Construct {
 
     this.userPool.addDomain("UserPoolCognitoDomain", {
       cognitoDomain: {
-        domainPrefix: "awesome-poc"
-      }
+        domainPrefix: "awesome-poc",
+      },
     });
 
     // Authorizer for the Hello World API that uses the

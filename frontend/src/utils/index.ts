@@ -13,9 +13,8 @@ const signInUrl = [
 const signOutUrl = [
   `${process.env.REACT_APP_COGNITO_DOMAIN}/logout`,
   `?client_id=${process.env.REACT_APP_CLIENT_ID}`,
-  `&response_type=token`,
   `&scope=openid`,
-  `&redirect_uri=${encodeURIComponent(
+  `&logout_uri=${encodeURIComponent(
     `${window.location.protocol}//${window.location.host}/signout`
   )}`,
 ].join("");

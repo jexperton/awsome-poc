@@ -1,21 +1,23 @@
-import { FC, useEffect, useState } from "react";
+import { createElement, FC, useEffect, useState } from "react";
 import { FormControl, FormLabel, Input, Button, Flex } from "@chakra-ui/react";
-import { Field, FieldArray, Form, Formik, FormikErrors } from "formik";
-import { CheckIcon } from "@chakra-ui/icons";
+import { Field, FieldArray, Form, Formik, FormikErrors, useFormik } from "formik";
+import { CheckIcon, SmallCloseIcon } from "@chakra-ui/icons";
 
 import type { Phrase } from "../../types";
-import useIndex from "../../hooks/useIndex";
 import Spinner from "../Spinner";
 import useVocabulary from "../../hooks/useVocabulary";
+import Loader from "../Loader";
 
 interface FormValues {
   phrases: Phrase[];
 }
 
-const Vocabulary: FC<{}> = () => {
+const VocabularyInner: FC<ReturnType<typeof useVocabulary>> = ({
+  vocabulary,
+  updateVocabulary,
+}) => {
   const [saved, setSaved] = useState(false);
-  const indexEntry = useIndex();
-  const { vocabulary, updateVocabulary } = useVocabulary();
+  const { a } = useFormik();
 
   const initialValues: FormValues = {
     phrases: [{ phrase: "", soundsLike: "", ipa: "", displayAs: "" }].concat(
@@ -30,9 +32,16 @@ const Vocabulary: FC<{}> = () => {
 
   const onSubmit = async (values: FormValues) => {
     await updateVocabulary(values.phrases.slice(1));
-    console.log(values.phrases.slice(1));
     setSaved(true);
     return true;
+  };
+
+  const removePhrase = async (
+    phrases: FormValues["phrases"],
+    index: number
+  ) => {
+    phrases = phrases.slice(1, index).concat(phrases.slice(index + 1))
+    await updateVocabulary(phrases);
   };
 
   useEffect(() => {
@@ -71,13 +80,14 @@ const Vocabulary: FC<{}> = () => {
                 <th>
                   <FormLabel>Display as</FormLabel>
                 </th>
+                <th />
               </tr>
             </thead>
             <tbody>
               <FieldArray name="phrases">
                 {(arrayHelpers) =>
                   values.phrases.map((item, index) => (
-                    <tr>
+                    <tr key={`phrase-${index}`}>
                       <td>
                         <Field name={`phrases.${index + 1}.phrase`}>
                           {({ field }: any) => (
@@ -114,13 +124,23 @@ const Vocabulary: FC<{}> = () => {
                           )}
                         </Field>
                       </td>
+                      <td>
+                        <Button
+                          variant="ghost"
+                          onClick={() =>
+                            removePhrase(values.phrases, index + 1)
+                          }
+                        >
+                          <SmallCloseIcon color="gray.500" />
+                        </Button>
+                      </td>
                     </tr>
                   ))
                 }
               </FieldArray>
             </tbody>
           </table>
-          <Flex alignItems={"center"}>
+          <Flex alignItems={"center"} marginTop={4}>
             <Button
               colorScheme="blue"
               variant={isSubmitting ? "outline" : "solid"}
@@ -145,6 +165,16 @@ const Vocabulary: FC<{}> = () => {
         </Form>
       )}
     </Formik>
+  );
+};
+
+const Vocabulary: FC<{}> = () => {
+  const { vocabulary, updateVocabulary } = useVocabulary();
+  console.log(vocabulary)
+  return vocabulary ? (
+    createElement(VocabularyInner, { vocabulary, updateVocabulary })
+  ) : (
+    <Loader />
   );
 };
 
